@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventFinder - AI-Powered Event Recommendations</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                        <div class="logo-text">
+                            <h1>EventFinder</h1>
+                            <p>AI-Powered Recommendations</p>
+                        </div>
+                    </div>
+                    
+                    <nav class="nav">
+                        <a href="#" class="nav-link">Discover</a>
+                        <a href="#" class="nav-link">Categories</a>
+                        <a href="#" class="nav-link">About</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Hero Section -->
+                <div class="hero">
+                    <div class="hero-content">
+                        <h1 class="hero-title">
+                            Discover Your Perfect Event
+                            <span class="gradient-text">with AI</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Search by event ID to get personalized recommendations powered by machine learning
+                        </p>
+                        
+                        <!-- Search Form -->
+                        <form class="search-form" action="/search" method="post">
+                            <div class="search-container">
+                                <div class="search-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <path d="m21 21-4.35-4.35"/>
+                                    </svg>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    name="eventId"
+                                    value="<%= searchQuery || '' %>"
+                                    placeholder="Enter Event ID (e.g., 'azcxplga8szakvhsjr')"
+                                    class="search-input"
+                                    id="searchInput"
+                                    required
+                                >
+                                <button type="submit" class="search-btn">
+                                    <span>Search</span>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="search-suggestions">
+                                <span class="suggestions-label">Try:</span>
+                                <button type="button" class="suggestion-btn" onclick="searchSuggestion('azcxplga8szakvhsjr')">azcxplga8szakvhsjr</button>
+                                <button type="button" class="suggestion-btn" onclick="searchSuggestion('bmnbu9rwetus3sze9c')">bmnbu9rwetus3sze9c</button>
+                                <button type="button" class="suggestion-btn" onclick="searchSuggestion('EVT001')">EVT001</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <% if (hasSearched) { %>
+                    <div class="results-section">
+                        <% if (error) { %>
+                            <div class="error-container">
+                                <div class="error-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="15" y1="9" x2="9" y2="15"/>
+                                        <line x1="9" y1="9" x2="15" y2="15"/>
+                                    </svg>
+                                </div>
+                                <h3>Oops! Something went wrong</h3>
+                                <p><%= error %></p>
+                                <button onclick="location.reload()" class="retry-btn">Try Again</button>
+                            </div>
+                        <% } else { %>
+                            <% if (inputEvent) { %>
+                                <div class="results-header">
+                                    <h2 class="results-title">
+                                        <span class="results-icon">🎯</span>
+                                        Searched Event
+                                        <% if (fallbackMode) { %>
+                                            <span class="demo-badge">Demo Mode</span>
+                                        <% } %>
+                                    </h2>
+                                    <p class="results-subtitle">Details for your searched event</p>
+                                </div>
+                                <div class="events-grid">
+                                    <div class="event-card" style="animation-delay: 0s">
+                                        <div class="event-header">
+                                            <div class="event-category">
+                                                <span class="category-dot"></span>
+                                                <%= inputEvent.category || 'General' %>
+                                            </div>
+                                            <div class="event-id"><%= inputEvent.event_id || 'N/A' %></div>
+                                        </div>
+                                        
+                                        <div class="event-content">
+                                            <h3 class="event-title"><%= inputEvent.title || 'Untitled Event' %></h3>
+                                            <% if (inputEvent.description) { %>
+                                                <p class="event-description"><%= inputEvent.description %></p>
+                                            <% } %>
+                                            
+                                            <div class="event-details">
+                                                <div class="event-detail">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                                        <circle cx="12" cy="10" r="3"/>
+                                                    </svg>
+                                                    <span><%= inputEvent.city || 'Location TBD' %></span>
+                                                </div>
+                                                
+                                                <div class="event-detail">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                                        <circle cx="9" cy="7" r="4"/>
+                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                                    </svg>
+                                                    <span><%= inputEvent.phq_attendance ? inputEvent.phq_attendance.toLocaleString() : 'N/A' %> attending</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="event-footer">
+                                            <div class="event-price">
+                                                <% if (inputEvent.dynamic_price && inputEvent.dynamic_price > 0) { %>
+                                                    <span class="price-amount">$<%= Number(inputEvent.dynamic_price).toFixed(2) %></span>
+                                                <% } else { %>
+                                                    <span class="price-free">Free</span>
+                                                <% } %>
+                                            </div>
+                                            <button class="event-btn">
+                                                <span>View Details</span>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div><br><br>
+                            <% } %>
+
+                            <% if (recommendations && recommendations.length > 0) { %>
+                                <div class="results-header">
+                                    <h2 class="results-title">
+                                        <span class="results-icon">🎯</span>
+                                        Recommended Events
+                                        <% if (fallbackMode) { %>
+                                            <span class="demo-badge">Demo Mode</span>
+                                        <% } %>
+                                    </h2>
+                                    <p class="results-subtitle">Top <%= recommendations.length %> events tailored for you</p>
+                                </div>
+                                
+                                <div class="events-grid">
+                                    <% recommendations.forEach((event, index) => { %>
+                                        <div class="event-card" style="animation-delay: index * 0.1 ">
+                                            <div class="event-header">
+                                                <div class="event-category">
+                                                    <span class="category-dot"></span>
+                                                    <%= event.category || 'General' %>
+                                                </div>
+                                                <div class="event-id"><%= event.event_id || 'N/A' %></div>
+                                            </div>
+                                            
+                                            <div class="event-content">
+                                                <h3 class="event-title"><%= event.title || 'Untitled Event' %></h3>
+                                                <% if (event.description) { %>
+                                                    <p class="event-description"><%= event.description %></p>
+                                                <% } %>
+                                                
+                                                <div class="event-details">
+                                                    <div class="event-detail">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                                            <circle cx="12" cy="10" r="3"/>
+                                                        </svg>
+                                                        <span><%= event.city || 'Location TBD' %></span>
+                                                    </div>
+                                                    
+                                                    <div class="event-detail">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                                            <circle cx="9" cy="7" r="4"/>
+                                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                                        </svg>
+                                                        <span><%= event.phq_attendance ? event.phq_attendance.toLocaleString() : 'N/A' %> attending</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="event-footer">
+                                                <div class="event-price">
+                                                    <% if (event.dynamic_price && event.dynamic_price > 0) { %>
+                                                        <span class="price-amount">$<%= Number(event.dynamic_price).toFixed(2) %></span>
+                                                    <% } else { %>
+                                                        <span class="price-free">Free</span>
+                                                    <% } %>
+                                                </div>
+                                                <button class="event-btn">
+                                                    <span>View Details</span>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } else if (!inputEvent) { %>
+                                <div class="no-results">
+                                    <div class="no-results-icon">
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path d="m21 21-4.35-4.35"/>
+                                        </svg>
+                                    </div>
+                                    <h3>No events found</h3>
+                                    <p>We couldn't find any events matching "<%= searchQuery %>". Try a different event ID.</p>
+                                    <div class="no-results-suggestions">
+                                        <p>Popular searches:</p>
+                                        <div class="suggestion-tags">
+                                            <span onclick="searchSuggestion('azcxplga8szakvhsjr')" class="suggestion-tag">azcxplga8szakvhsjr</span>
+                                            <span onclick="searchSuggestion('bmnbu9rwetus3sze9c')" class="suggestion-tag">bmnbu9rwetus3sze9c</span>
+                                            <span onclick="searchSuggestion('EVT001')" class="suggestion-tag">EVT001</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <div class="logo">
+                            <div class="logo-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                            </div>
+                            <div class="logo-text">
+                                <h3>EventFinder</h3>
+                                <p>Powered by AI recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Features</h4>
+                        <ul>
+                            <li>AI-Powered Search</li>
+                            <li>Personalized Recommendations</li>
+                            <li>Real-time Results</li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <ul>
+                            <li>Help Center</li>
+                            <li>Contact Us</li>
+                            <li>API Documentation</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>© 2025 EventFinder. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function searchSuggestion(query) {
+            document.getElementById('searchInput').value = query;
+            document.querySelector('.search-form').submit();
+        }
+
+        // Enhanced search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchForm = document.querySelector('.search-form');
+            
+            // Auto-focus search input
+            if (searchInput && !searchInput.value) {
+                searchInput.focus();
+            }
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+                
+                if (e.key === 'Escape' && document.activeElement === searchInput) {
+                    searchInput.blur();
+                }
+            });
+            
+            // Form validation
+            searchForm.addEventListener('submit', function(e) {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.classList.add('error');
+                    setTimeout(() => searchInput.classList.remove('error'), 2000);
+                }
+            });
+            
+            // Loading state
+            searchForm.addEventListener('submit', function() {
+                const submitBtn = searchForm.querySelector('.search-btn');
+                submitBtn.classList.add('loading');
+                submitBtn.innerHTML = `
+                    <span>Searching...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin">
+                        <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                    </svg>
+                `;
+            });
+        });
+        
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.event-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
